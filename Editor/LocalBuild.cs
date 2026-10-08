@@ -260,6 +260,7 @@ namespace LocalBuilder
 
             List<string> artifacts = CollectArtifacts(localDir, outputPath, baseName, startUtc, settings.copyMapping);
             settings.lastArtifacts = artifacts;
+            settings.lastBaseName = baseName;
             settings.lastResult = $"{DateTime.Now:yyyy-MM-dd HH:mm} Succeeded ({buildTime}, {FormatSize(summary.totalSize)})";
             settings.SaveSettings();
 
@@ -271,7 +272,7 @@ namespace LocalBuilder
                     EditorUtility.RevealInFinder(outputPath);
                 return true;
             }
-            return CopyArtifacts(artifacts, interactive);
+            return CopyArtifacts(artifacts, baseName, interactive);
         }
 
         public static bool CopyLastBuild(bool interactive)
@@ -281,7 +282,7 @@ namespace LocalBuilder
                 return Fail("No local build artifacts found. Build first.", interactive);
             if (!IsDestinationAvailable)
                 return Fail("Destination folder is not available:\n" + DestinationRoot, interactive);
-            return CopyArtifacts(artifacts, interactive);
+            return CopyArtifacts(artifacts, LocalBuilderSettings.instance.lastBaseName, interactive);
         }
 
         static List<string> CollectArtifacts(string localDir, string outputPath, string baseName, DateTime startUtc, bool copyMapping)
@@ -327,7 +328,7 @@ namespace LocalBuilder
                 .FirstOrDefault();
         }
 
-        static bool CopyArtifacts(List<string> artifacts, bool interactive)
+        static bool CopyArtifacts(List<string> artifacts, string baseName, bool interactive)
         {
             var settings = LocalBuilderSettings.instance;
             string destDir = DestinationDir;
@@ -358,7 +359,7 @@ namespace LocalBuilder
                 Debug.Log($"{LogPrefix}Copied {artifacts.Count} file(s), {FormatSize((ulong)totalBytes)} in {seconds:0.0}s " +
                           $"({totalBytes / seconds / (1 << 20):0.0} MB/s) to {destDir}");
                 if (settings.deleteLocalAfterCopy)
-                    DeleteLocalArtifacts(artifacts, destDir);
+                    DeleteLocalArtifacts(artifacts, destDir, baseName);
                 if (interactive && settings.revealAfterCopy)
                     EditorUtility.RevealInFinder(Path.Combine(destDir, Path.GetFileName(artifacts[0])));
                 return true;
@@ -380,8 +381,9 @@ namespace LocalBuilder
             }
         }
 
-        // Removes only files whose copy in the destination has the same size.
-        static void DeleteLocalArtifacts(List<string> artifacts, string destDir)
+        // Removes only build files (name starts with the build's base name) whose copy in the destination has the same size.
+        // Other files written to the local folder during the build are copied but kept.
+        static void DeleteLocalArtifacts(List<string> artifacts, string destDir, string baseName)
         {
             long freedBytes = 0;
             int deleted = 0;
@@ -390,6 +392,11 @@ namespace LocalBuilder
                 string dst = Path.Combine(destDir, Path.GetFileName(src));
                 try
                 {
+                    if (string.IsNullOrEmpty(baseName) || !Path.GetFileName(src).StartsWith(baseName, StringComparison.Ordinal))
+                    {
+                        Debug.LogWarning($"{LogPrefix}Local file kept, not named after the build: {src}");
+                        continue;
+                    }
                     // Destination == local folder: the "copy" is the local file itself.
                     if (string.Equals(Path.GetFullPath(src), Path.GetFullPath(dst), StringComparison.OrdinalIgnoreCase))
                     {

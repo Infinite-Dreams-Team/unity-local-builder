@@ -35,6 +35,7 @@ namespace LocalBuilder
         // Last build info (used by "Copy Last Build").
         public string lastResult = "";
         public List<string> lastArtifacts = new List<string>();
+        public string lastBaseName = "";
 
         public void SaveSettings() => Save(true);
 

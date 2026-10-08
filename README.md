@@ -11,11 +11,11 @@ Kod jest otoczony `#if UNITY_ANDROID`, więc menu i okno są dostępne tylko prz
 Dodaj do `Packages/manifest.json`:
 
 ```json
-"pl.idreams.local-builder": "https://github.com/Infinite-Dreams-Team/unity-local-builder.git#v1.0.0"
+"pl.idreams.local-builder": "https://github.com/Infinite-Dreams-Team/unity-local-builder.git#v1.0.1"
 ```
 
 Bez dostępu do GitHuba: `npm pack` w tym folderze, skopiuj `.tgz` do `Packages/` projektu i dodaj jako
-`"file:pl.idreams.local-builder-1.0.0.tgz"`.
+`"file:pl.idreams.local-builder-1.0.1.tgz"`.
 
 Jeśli projekt ma starą kopię w `Assets/Plugins/LocalBuilder`, usuń ją przed dodaniem pakietu (te same klasy i asmdef).
 
@@ -26,9 +26,9 @@ Jeśli projekt ma starą kopię w `Assets/Plugins/LocalBuilder`, usuń ją przed
   Przykład: podfolder `{version}`, nazwa `game_{version_}_{code}` daje `1.03/game_1_03_82.aab`.
 - Plik najpierw kopiuje się jako `*.partial`, a po zakończeniu kopiowania zmienia nazwę na docelową. Jeśli udział nie jest zamontowany, build zostaje lokalnie i można go skopiować później.
 - **Delete local after copy** (domyślnie włączone, też jako przełącznik w menu Builder): po udanym kopiowaniu usuwa lokalne pliki builda.
-  Plik jest usuwany tylko wtedy, gdy jego kopia w katalogu docelowym istnieje i ma ten sam rozmiar, i nie jest tym samym plikiem co lokalny.
+  Usuwane są tylko pliki z nazwą builda (`<nazwa>.aab`/`.apk`, `.obb`, `*.symbols.zip`, `<nazwa>_mapping.txt`), których kopia w katalogu docelowym istnieje, ma ten sam rozmiar i nie jest tym samym plikiem co lokalny.
+  Inne pliki zapisane w katalogu lokalnym w trakcie builda są kopiowane, ale zostają na dysku.
   Jeśli kopiowanie się nie uda albo zostanie przerwane, lokalny build zostaje.
-  Katalog lokalny powinien być przeznaczony tylko na buildy: do artefaktów trafia każdy plik zapisany w nim w trakcie builda.
 
 Ustawienia są per użytkownik i zapisywane w `UserSettings/LocalBuilderSettings.asset`. Przy pierwszym uruchomieniu wypełniają się na podstawie ostatniej lokalizacji builda Androida.
 Unity nie pamięta haseł keystore po restarcie. Opcja "Remember passwords" zapisuje je jawnym tekstem w EditorPrefs na tej maszynie.
