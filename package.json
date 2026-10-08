@@ -1,0 +1,16 @@
+{
+  "name": "pl.idreams.local-builder",
+  "version": "1.0.0",
+  "displayName": "Local Builder",
+  "description": "Builds the Android player (AAB/APK) on a local disk so Gradle never runs on a network share, then copies the signed artifacts (.aab/.apk, .obb, symbols, R8 mapping) to a destination folder and optionally deletes the local copies. Adds the Builder menu and a command line entry point.",
+  "unity": "2021.3",
+  "author": {
+    "name": "iDreams"
+  },
+  "keywords": [
+    "android",
+    "build",
+    "gradle",
+    "aab"
+  ]
+}
